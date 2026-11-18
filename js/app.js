@@ -94,11 +94,13 @@ function doneCount(m) { return m.tasks.filter((_, i) => st.tasks[`${m.id}.${i}`]
 function viewSchool() {
   const all = MODULES.reduce((a, m) => a + m.tasks.length, 0);
   const done = MODULES.reduce((a, m) => a + doneCount(m), 0);
+  const nAns = Object.keys(st.answers || {}).length;
   const html = `${top('Школа', 'восемь модулей, по одному в неделю')}
   <div class="pad">
     <div class="card prog"><div class="bar"><i style="width:${Math.round(done / all * 100)}%"></i></div><span class="mono">${done} из ${all} заданий</span></div>
+    <a class="btn ghost" href="#/school/summary">✎ Мои выводы ${nAns ? `<span class="mono cnt">${nAns}</span>` : ''}</a>
     ${MODULES.map((m, i) => { const d = doneCount(m); const full = d === m.tasks.length; return `<a class="card mod ${full ? 'full' : ''}" href="#/school/${m.id}">
-      <span class="num disp">${i + 1}</span><span class="grow"><b>${esc(m.t)}</b><small>${esc(m.s)}</small></span><span class="mono dots">${d}/${m.tasks.length}</span></a>`; }).join('')}
+      <span class="num disp">${i + 1}</span><span class="grow"><b>${esc(m.t)}</b><small>${esc(m.s)}</small></span><span class="mono dots">${ans(m.id).t ? '✎ ' : ''}${d}/${m.tasks.length}</span></a>`; }).join('')}
   </div>`;
   app.innerHTML = shell('school', html);
 }
@@ -109,11 +111,53 @@ function viewModule(id) {
     <div class="card body">${m.body.map((b) => `<p>${esc(b)}</p>`).join('')}
     ${m.links.length ? `<p class="links">${m.links.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">↗ ${esc(t)}</a>`).join('')}</p>` : ''}</div>
     <h2 class="sec">Задания</h2>
-    ${m.tasks.map((t, k) => { const key = `${m.id}.${k}`; return `<label class="card task ${st.tasks[key] ? 'on' : ''}"><input type="checkbox" data-k="${key}" ${st.tasks[key] ? 'checked' : ''}><span class="box"></span><span>${esc(t)}</span></label>`; }).join('')}
+    ${m.tasks.map((t, k) => { const key = `${m.id}.${k}`; const a = ans(key); return `<div class="card task ${st.tasks[key] ? 'on' : ''}">
+      <label class="taskhead"><input type="checkbox" data-k="${key}" ${st.tasks[key] ? 'checked' : ''}><span class="box"></span><span class="tt">${esc(t)}</span></label>
+      <textarea class="answer" data-a="${key}" rows="2" placeholder="мой ответ: что сделала, что получилось, что заметила">${esc(a.t)}</textarea>
+      <span class="saved mono" data-s="${key}">${a.at ? 'записано ' + stamp(a.at) : ''}</span></div>`; }).join('')}
+    <h2 class="sec">К чему я пришла</h2>
+    <div class="card task concl"><textarea class="answer" data-a="${m.id}" rows="3" placeholder="главный вывод модуля одной-двумя фразами">${esc(ans(m.id).t)}</textarea>
+      <span class="saved mono" data-s="${m.id}">${ans(m.id).at ? 'записано ' + stamp(ans(m.id).at) : ''}</span></div>
     <div class="row">${i > 0 ? `<a class="btn ghost" href="#/school/${MODULES[i - 1].id}">← ${esc(MODULES[i - 1].t)}</a>` : ''}${i < MODULES.length - 1 ? `<a class="btn" href="#/school/${MODULES[i + 1].id}">${esc(MODULES[i + 1].t)} →</a>` : ''}</div>
   </div>`;
   app.innerHTML = shell('school', html);
   app.querySelectorAll('.task input').forEach((c) => c.onchange = () => { st.tasks[c.dataset.k] = c.checked; save(); c.closest('.task').classList.toggle('on', c.checked); if (c.checked) toast('Поебашили ✦'); });
+  bindAnswers();
+}
+// ответы на задания и выводы: st.answers[ключ] = { t: текст, at: время }
+function ans(k) { return (st.answers && st.answers[k]) || { t: '', at: 0 }; }
+function grow(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 4 + 'px'; }
+function bindAnswers() {
+  app.querySelectorAll('textarea.answer').forEach((ta) => {
+    grow(ta);
+    ta.oninput = () => {
+      grow(ta); clearTimeout(ta._t);
+      ta._t = setTimeout(() => {
+        st.answers = st.answers || {}; const k = ta.dataset.a; const t = ta.value.trim();
+        if (t) st.answers[k] = { t: ta.value, at: Date.now() }; else delete st.answers[k];
+        if (t && k.includes('.') && !st.tasks[k]) { st.tasks[k] = true; const c = app.querySelector(`input[data-k="${k}"]`); if (c) { c.checked = true; c.closest('.task').classList.add('on'); } }
+        save(); const sv = app.querySelector(`[data-s="${k}"]`); if (sv) sv.textContent = t ? 'записано ' + stamp(Date.now()) : '';
+      }, 500);
+    };
+  });
+}
+function viewSummary() {
+  const blocks = MODULES.map((m, i) => {
+    const items = m.tasks.map((t, k) => ({ t, a: ans(`${m.id}.${k}`).t.trim() })).filter((x) => x.a);
+    const c = ans(m.id).t.trim();
+    if (!items.length && !c) return '';
+    return `<div class="card sumcard"><span class="stamp">модуль ${i + 1}</span><b class="disp">${esc(m.t)}</b>
+      ${c ? `<p class="concl-t">${esc(c).replace(/\n/g, '<br>')}</p>` : ''}
+      ${items.map((x) => `<p class="q">${esc(x.t)}</p><p>${esc(x.a).replace(/\n/g, '<br>')}</p>`).join('')}
+      <a class="more" href="#/school/${m.id}">открыть модуль →</a></div>`;
+  }).join('');
+  const html = `${top('Мои выводы', 'к чему я пришла', '#/school')}
+  <div class="pad">${blocks ? `<button class="btn ghost" id="cpall">Скопировать всё текстом</button>${blocks}` : '<p class="note center">Пока пусто. Ответы появятся здесь, как только ты начнёшь писать их в заданиях.</p>'}</div>`;
+  app.innerHTML = shell('school', html);
+  const b = app.querySelector('#cpall'); if (b) b.onclick = () => {
+    const txt = MODULES.map((m, i) => { const items = m.tasks.map((t, k) => [t, ans(`${m.id}.${k}`).t.trim()]).filter((x) => x[1]); const c = ans(m.id).t.trim(); if (!items.length && !c) return ''; return `${i + 1}. ${m.t}\n${c ? 'Вывод: ' + c + '\n' : ''}${items.map(([t, a]) => `— ${t}\n${a}`).join('\n')}`; }).filter(Boolean).join('\n\n');
+    navigator.clipboard?.writeText(txt).then(() => toast('Скопировано'), () => toast('Не получилось скопировать'));
+  };
 }
 
 // ——— Приёмы ———
@@ -213,7 +257,7 @@ function route() {
   const h = location.hash.replace(/^#\/?/, '') || 'mask';
   const [path, qs] = h.split('?'); const [a, b] = path.split('/');
   const q = new URLSearchParams(qs || '');
-  if (a === 'school') b ? viewModule(b) : viewSchool();
+  if (a === 'school') b === 'summary' ? viewSummary() : b ? viewModule(b) : viewSchool();
   else if (a === 'tricks') viewTricks();
   else if (a === 'cover') { app.innerHTML = shell('cover', '<div id="cv"></div>'); viewCover(app.querySelector('#cv'), { cover: q.get('t') || '', toast }); }
   else if (a === 'ideas') viewIdeas();
