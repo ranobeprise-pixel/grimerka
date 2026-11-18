@@ -1,5 +1,4 @@
 // Конструктор обложек для рилс: 1080×1920, рамка сетки профиля 3:4 и безопасная зона.
-import { CUP_SVG } from './app.js';
 
 const W = 1080, H = 1920;
 const GRID = { x: 0, y: (H - 1440) / 2, w: 1080, h: 1440 }; // что видно в сетке профиля
@@ -12,7 +11,7 @@ let cupImg = null;
 
 function loadCup() {
   if (cupImg) return Promise.resolve(cupImg);
-  return new Promise((res) => { const i = new Image(); i.onload = () => { cupImg = i; res(i); }; i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(CUP_SVG.replace('<svg ', '<svg width="240" height="344" ')); });
+  return new Promise((res) => { const i = new Image(); i.onload = () => { cupImg = i; res(i); }; i.onerror = () => res(null); i.src = 'img/cup-sticker.png'; });
 }
 
 function wrap(ctx, text, maxW) {
@@ -71,7 +70,7 @@ async function draw(cv) {
     });
   }
   // талисман и дата внизу рамки сетки
-  if (s.cup) { const img = await loadCup(); ctx.save(); ctx.translate(W - 250, GRID.y + GRID.h - 380); ctx.rotate(0.12); ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowOffsetX = 10; ctx.shadowOffsetY = 10; ctx.drawImage(img, 0, 0, 200, 287); ctx.restore(); }
+  if (s.cup) { const img = await loadCup(); if (img) { const w = 230, h = w * img.height / img.width; ctx.save(); ctx.translate(W - 290, GRID.y + GRID.h - h - 60); ctx.rotate(0.12); ctx.drawImage(img, 0, 0, w, h); ctx.restore(); } }
   if (s.stamp) {
     const d = new Date(); const z = (n) => String(n).padStart(2, '0'); const t = `${z(d.getDate())}/${z(d.getMonth() + 1)}/${d.getFullYear()}`;
     ctx.font = "400 46px 'Plex Mono'"; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
