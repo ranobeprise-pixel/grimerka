@@ -1,3 +1,4 @@
+import { viewCover } from './covers.js';
 import { PERSONA, PALETTE, FONTS, FRAME, WORKS, MODULES, SINS, TRICKS, SEED, STATUSES } from './data.js';
 
 // ——— хранилище: всё только на этом устройстве ———
@@ -18,23 +19,32 @@ const stamp = (ms) => { const d = new Date(ms); const z = (n) => String(n).padSt
 const statusT = (k) => (STATUSES.find((s) => s.k === k) || STATUSES[0]).t;
 function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 1800); }
 
-export const MASK = (w = 120) => `<svg class="maskSvg" width="${w}" viewBox="0 0 120 150" aria-hidden="true">
-  <path d="M10 70 L-2 64 M110 70 L122 64" stroke="#E0368F" stroke-width="3" stroke-linecap="round"/>
-  <path d="M60 6C98 6 112 40 110 78C108 118 88 144 60 144C32 144 12 118 10 78C8 40 22 6 60 6Z" fill="#F7F1E6" stroke="#1A1320" stroke-width="3"/>
-  <path d="M38 60q7-5 14 0M68 60q7-5 14 0" stroke="#1A1320" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <circle cx="45" cy="71" r="3.6" fill="#1A1320"/><circle cx="75" cy="71" r="3.6" fill="#1A1320"/>
-  <path d="M61 76L56 94L63 94" stroke="#1A1320" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-  <circle cx="36" cy="98" r="10" fill="#E0368F" opacity=".45"/><circle cx="84" cy="98" r="10" fill="#E0368F" opacity=".45"/>
-  <path d="M53 110Q60 105 67 110Q60 116 53 110Z" fill="#B8233F"/>
+export const CUP_SVG = `<svg viewBox="0 0 120 172" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 28Q14 12 58 10Q104 10 110 26Q108 66 94 94Q60 110 26 94Q10 66 10 28Z" fill="#F2B4A0" stroke="#1A1320" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M28 22Q32 56 30 86M60 16Q62 50 64 98M92 22Q88 56 90 88" stroke="#C9715C" stroke-width="6" opacity=".25" fill="none" stroke-linecap="round"/>
+  <path d="M22 50q7-6 15 0M74 42q7-6 15 0" stroke="#1A1320" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M23 48l-3-4M27 46l-1-5M75 40l-2-4M79 38l0-5" stroke="#1A1320" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="30" cy="53" r="2.6" fill="#1A1320"/><circle cx="82" cy="45" r="2.6" fill="#1A1320"/>
+  <circle cx="26" cy="68" r="7" fill="#E8505B" opacity=".85"/><circle cx="92" cy="60" r="7" fill="#E8505B" opacity=".85"/>
+  <path d="M54 30L32 74Q42 84 58 74Z" fill="#F7C9B8" stroke="#1A1320" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M36 74q5 4 10 1" stroke="#D2404A" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+  <path d="M56 86Q70 92 84 80" stroke="#C63D45" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <path d="M38 100Q60 110 82 100L80 110Q60 118 40 110Z" fill="#F4EEE3" stroke="#1A1320" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M50 113Q46 132 56 152L78 150Q70 132 72 113Z" fill="#2F4FC0" stroke="#1A1320" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M55 124q6 2 10-1M58 138q6 2 11-1" stroke="#8EA6FF" stroke-width="2" opacity=".6" fill="none" stroke-linecap="round"/>
+  <path d="M40 152Q60 145 80 150Q86 159 80 166L44 167Q32 161 40 152Z" fill="#BFDCC4" stroke="#1A1320" stroke-width="2.6" stroke-linejoin="round"/>
+  <circle cx="54" cy="158" r="2" fill="#8A4B2E"/><circle cx="62" cy="161" r="1.6" fill="#8A4B2E"/><circle cx="70" cy="156" r="1.4" fill="#8A4B2E"/>
 </svg>`;
+export const MASK = (w = 120) => CUP_SVG.replace('<svg ', `<svg class="maskSvg" width="${w}" aria-hidden="true" `);
 
 const ICONS = {
   mask: '<svg viewBox="0 0 24 24"><path d="M12 2.5c5.2 0 7 4 6.7 8.6C18.4 16.6 15.6 21 12 21s-6.4-4.4-6.7-9.9C5 6.5 6.8 2.5 12 2.5Z"/><circle cx="9.2" cy="10.5" r=".9"/><circle cx="14.8" cy="10.5" r=".9"/><path d="M10.5 15.5q1.5 1 3 0"/></svg>',
   school: '<svg viewBox="0 0 24 24"><path d="M4 5.5C7 4.5 9.5 5 12 6.5c2.5-1.5 5-2 8-1v13c-3-1-5.5-.5-8 1-2.5-1.5-5-2-8-1Z"/><path d="M12 6.5v13"/></svg>',
   tricks: '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.4 6.1 6.6.4-5.1 4.2 1.7 6.4L12 16l-5.6 3.6 1.7-6.4L3 9l6.6-.4Z"/></svg>',
+  cover: '<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M9 8h6M9 11h4"/></svg>',
   ideas: '<svg viewBox="0 0 24 24"><path d="M4 8.5h16v11H4z"/><path d="M4 8.5l2.5-4h11l2.5 4"/><path d="M9.5 12.5h5"/></svg>',
 };
-const TABS = [['mask', 'Маска'], ['school', 'Школа'], ['tricks', 'Приёмы'], ['ideas', 'Идеи']];
+const TABS = [['mask', 'Маска'], ['school', 'Школа'], ['tricks', 'Приёмы'], ['cover', 'Обложка'], ['ideas', 'Идеи']];
 
 function shell(tab, inner, cls = '') {
   return `<div class="scr ${cls}">${inner}</div>
@@ -55,6 +65,7 @@ function viewMask() {
   </section>
   <div class="pad">
     <div class="card quote"><span class="stamp">кто я в кадре</span><p class="big">${esc(p.line)}</p></div>
+    <div class="card cupcard"><img src="img/cup.jpg" alt="Керамическая чашка с лицом"><div><span class="stamp">талисман</span><p><b>Чашка с лицом.</b> Слепила сама. Кукольное лицо, большой нос, синяя нога в зелёном ботинке. Немного смешная, немного жуткая — как и всё, что я люблю.</p><p class="hand">в кадре или в руках в каждом ролике</p></div></div>
     <div class="traits">${p.traits.map((t, i) => `<div class="card trait t${i}"><b>${esc(t.t)}</b><p>${esc(t.d)}</p></div>`).join('')}</div>
     <div class="card phrase"><span class="hand">фирменное</span><p class="disp">${esc(p.phrases[0])}</p><ul class="chips">${p.phrases.slice(1).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
     ${fold('against', 'Против чего я', `<ul class="ul">${p.against.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`)}
@@ -163,6 +174,7 @@ function viewIdea(id) {
     <div class="filters st">${STATUSES.map((s) => `<button class="${i.status === s.k ? 'on' : ''}" data-s="${s.k}">${s.t}</button>`).join('')}</div>
     <div class="card script"><span class="stamp">${stamp(i.created)}${i.sin ? ` · ${esc(i.sin)}` : ''}</span>${i.text ? paras(i.text) : '<p class="note">Текста пока нет.</p>'}</div>
     <div class="row"><a class="btn ghost" href="#/edit/${i.id}">Редактировать</a><button class="btn ghost" id="copy">Скопировать текст</button></div>
+    <a class="btn ghost" href="#/cover?t=${encodeURIComponent(i.cover || i.title)}">Сделать обложку</a>
     <button class="btn danger" id="del">Удалить</button>
   </div>`;
   app.innerHTML = shell('ideas', html);
@@ -203,6 +215,7 @@ function route() {
   const q = new URLSearchParams(qs || '');
   if (a === 'school') b ? viewModule(b) : viewSchool();
   else if (a === 'tricks') viewTricks();
+  else if (a === 'cover') { app.innerHTML = shell('cover', '<div id="cv"></div>'); viewCover(app.querySelector('#cv'), { cover: q.get('t') || '', toast }); }
   else if (a === 'ideas') viewIdeas();
   else if (a === 'idea') viewIdea(b);
   else if (a === 'new') viewEdit(null, { sin: q.get('sin') || '' });

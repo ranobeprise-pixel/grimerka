@@ -177,3 +177,24 @@ a{color:inherit;text-decoration:none}
 .toast{position:fixed;left:50%;bottom:calc(var(--tab) + 16px);transform:translateX(-50%);background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:20px;padding:8px 16px;font-weight:600;z-index:9;box-shadow:3px 3px 0 rgba(0,0,0,.5);animation:pop .2s}
 @keyframes pop{from{transform:translate(-50%,8px);opacity:0}}
 .sw.dk{border-color:rgba(244,238,227,.4)}
+.cupcard{display:flex;gap:12px;align-items:flex-start;background-color:#FBE3EF}
+.cupcard img{width:96px;flex:none;border:2px solid var(--ink);border-radius:10px;transform:rotate(-2deg)}
+.cupcard .hand{font-size:19px;color:var(--wine)}
+.tabs a span{font-size:11px}
+/* обложка */
+.cvwrap{position:relative;width:74%;margin:0 auto;border:2px solid var(--ink);border-radius:14px;overflow:hidden;box-shadow:5px 5px 0 rgba(0,0,0,.55);aspect-ratio:9/16}
+.cvwrap canvas{display:block;width:100%;height:100%}
+.guides{position:absolute;inset:0;pointer-events:none}
+.g-out{position:absolute;left:0;right:0;height:12.5%;background:repeating-linear-gradient(135deg,rgba(0,0,0,.45) 0 6px,rgba(0,0,0,.25) 6px 12px)}
+.g-out.top{top:0}.g-out.bot{bottom:0}
+.g-grid{position:absolute;left:0;right:0;top:12.5%;bottom:12.5%;border:2px dashed var(--fuchsia)}
+.g-grid span{position:absolute;left:6px;top:4px;font-family:'Plex Mono',monospace;font-size:10px;color:#fff;background:var(--fuchsia);padding:1px 5px;border-radius:4px}
+.g-ui{display:none}
+.fld em{font-style:normal;font-size:12px}
+.bgs{display:flex;gap:8px;align-items:center}
+.bgs button{width:40px;height:40px;border-radius:50%;border:2px solid rgba(244,238,227,.4);flex:none}
+.bgs button.on{border:3px solid var(--yellow);box-shadow:0 0 0 2px var(--ink)}
+.bgs .ph{min-height:40px;flex:1;font-size:14px}
+.toggles{display:flex;gap:14px;flex-wrap:wrap;font-size:14px}
+.toggles label{display:flex;gap:6px;align-items:center}
+.toggles input{accent-color:#E0368F;width:18px;height:18px}
